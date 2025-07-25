@@ -13,7 +13,11 @@ st.title("💅 Beauty Biz Finance Tracker")
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
 client = gspread.authorize(creds)
-sheet = client.open("BeautyFinanceData")
+
+# ✅ Using your actual Google Sheet ID
+spreadsheet_id = "1zhx8YZ48h3qhRRaxk8pfntzNodJ0rjNWPKiWrNKfdk8"
+sheet = client.open_by_key(spreadsheet_id)
+
 income_sheet = sheet.worksheet("Income")
 expense_sheet = sheet.worksheet("Expenses")
 
