@@ -5,7 +5,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # 1️⃣ --- CONFIGS ---
-st.set_page_config(page_title="Beauty Finance Tracker 💄", layout="wide")
+st.set_page_config(page_title="B-Keepers Finance Tracker", layout="wide")
 
 # 2️⃣ --- AUTH ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
