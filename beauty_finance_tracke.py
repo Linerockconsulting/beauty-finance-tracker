@@ -1,3 +1,5 @@
+from xhtml2pdf import pisa
+import io
 import streamlit as st
 import pandas as pd
 import datetime
@@ -6,6 +8,13 @@ import pdfkit
 import tempfile
 import datetime
 from oauth2client.service_account import ServiceAccountCredentials
+
+def generate_pdf_from_html(html: str):
+    result = io.BytesIO()
+    pisa_status = pisa.CreatePDF(io.StringIO(html), dest=result)
+    if pisa_status.err:
+        return None
+    return result.getvalue()
 
 # 1️⃣ --- CONFIGS ---
 st.set_page_config(page_title="B-Keepers Finance ERP", layout="wide")
@@ -121,40 +130,51 @@ elif tab == "🧾 Generate Invoice":
         if submitted:
             # Generate unique invoice number
             invoice_id = f"INV-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
-            # Prepare invoice HTML
+if submitted:
+    # Save the invoice entry to Google Sheets
+    row = [str(invoice_date), client_name, service_type, amount, notes]
+    income_sheet.append_row(row)
+    st.success("✅ Invoice generated and saved!")
+
+    # Step 4: Create the Invoice HTML content
     invoice_html = f"""
     <html>
     <head>
-    <style>
-    body {{ font-family: Arial, sans-serif; padding: 40px; }}
-    h2 {{ color: #4CAF50; }}
-    table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-    td {{ padding: 8px; }}
-    </style>
+        <style>
+            body {{ font-family: Arial, sans-serif; }}
+            .header {{ text-align: center; font-size: 24px; font-weight: bold; }}
+            .invoice-box {{ margin: 20px; padding: 20px; border: 1px solid #eee; }}
+            table {{ width: 100%; margin-top: 20px; }}
+            th, td {{ padding: 8px; text-align: left; }}
+        </style>
     </head>
     <body>
-        <h2>🧾 Invoice: {invoice_id}</h2>
-        <p><strong>Date:</strong> {invoice_date.strftime('%d-%m-%Y')}</p>
-        <p><strong>Client:</strong> {client_name}</p>
-        <p><strong>Service:</strong> {service_type}</p>
-        <p><strong>Amount:</strong> ₹{amount:,.2f}</p>
-        <p><strong>Notes:</strong> {notes or 'N/A'}</p>
-        <hr>
-        <p><em>Thank you for your business!</em></p>
+        <div class="invoice-box">
+            <div class="header">MytownERP - Invoice</div>
+            <p><strong>Date:</strong> {invoice_date}</p>
+            <p><strong>Client Name:</strong> {client_name}</p>
+            <p><strong>Service:</strong> {service_type}</p>
+            <p><strong>Amount:</strong> ₹{amount:,.2f}</p>
+            <p><strong>Notes:</strong> {notes}</p>
+        </div>
     </body>
     </html>
     """
 
-    # Generate PDF from HTML
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-        pdfkit.from_string(invoice_html, temp_pdf.name)
-        with open(temp_pdf.name, "rb") as pdf_file:
-            st.download_button(
-                label="📥 Download Invoice PDF",
-                data=pdf_file,
-                file_name=f"{invoice_id}.pdf",
-                mime="application/pdf"
-            )
+    # Step 5: Generate the PDF from the HTML
+    pdf_file = generate_pdf_from_html(invoice_html)
+
+    if pdf_file:
+        st.download_button(
+            label="📥 Download Invoice PDF",
+            data=pdf_file,
+            file_name=f"Invoice_{client_name}_{invoice_date}.pdf",
+            mime="application/pdf"
+        )
+    else:
+        st.error("❌ Failed to generate PDF. Please try again.")
+           
+
             # Show invoice preview
             invoice_md = f"""
             ### 🧾 Invoice: {invoice_id}
