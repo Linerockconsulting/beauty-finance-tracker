@@ -11,7 +11,7 @@ st.set_page_config(page_title="Beauty Finance Tracker 💄", layout="wide")
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
 client = gspread.authorize(creds)
-sheet = client.open("BeautyFinanceData")
+sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1zhx8YZ48h3qhRRaxk8pfntzNodJ0rjNWPKiWrNKfdk8/edit")
 income_sheet = sheet.worksheet("Income")
 expense_sheet = sheet.worksheet("Expenses")
 
