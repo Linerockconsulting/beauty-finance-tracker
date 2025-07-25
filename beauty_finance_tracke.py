@@ -100,12 +100,14 @@ elif tab == "🧾 Generate Invoice":
 
     with st.form("invoice_form"):
         invoice_date = st.date_input("Invoice Date", datetime.date.today())
-        client_name = st.text_input("Client Name", value="", placeholder="Start typing...")
 
-# Autocomplete logic: show suggestions
-suggestions = [c for c in existing_clients if client_name.lower() in c.lower()]
-if suggestions:
-    client_name = st.selectbox("Did you mean?", suggestions + [client_name], index=len(suggestions))
+        # Autocomplete customer name using selectbox logic
+        client_name_input = st.text_input("Client Name", value="", placeholder="Start typing...")
+        suggestions = [c for c in existing_clients if client_name_input.lower() in c.lower()]
+        if suggestions:
+            client_name = st.selectbox("Select Client", suggestions + [client_name_input], index=len(suggestions))
+        else:
+            client_name = client_name_input  # No suggestion, use raw input
 
         service_type = st.text_input("Service Provided")
         amount = st.number_input("Amount (₹)", min_value=0.0, step=100.0)
@@ -114,10 +116,10 @@ if suggestions:
         submitted = st.form_submit_button("📤 Generate Invoice")
 
         if submitted:
-            # Generate invoice number (you can improve this logic later)
+            # Generate unique invoice number
             invoice_id = f"INV-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-            # Create a basic invoice in Markdown
+            # Show invoice preview
             invoice_md = f"""
             ### 🧾 Invoice: {invoice_id}
             - **Date:** {invoice_date.strftime('%d-%m-%Y')}
@@ -129,11 +131,17 @@ if suggestions:
             ---
             **Thank you for your business!**
             """
-
             st.markdown(invoice_md)
 
-            # Optionally save to income sheet
+            # 1️⃣ Save invoice as income
             row = [str(invoice_date), client_name, service_type, amount, notes]
             income_sheet.append_row(row)
+
+            # 2️⃣ Add client to customer master if not present
+            if client_name not in existing_clients:
+                new_customer_code = f"CUST-{len(existing_clients) + 1:04d}"
+                customer_sheet.append_row([new_customer_code, client_name])
+                existing_clients.append(client_name)  # Update local list
+
             st.success("✅ Invoice generated and income recorded.")
 
