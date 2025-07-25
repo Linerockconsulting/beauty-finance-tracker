@@ -43,6 +43,10 @@ def add_expense(date, exp_type, amount):
 # --- Menu ---
 menu = st.sidebar.radio("Go to", ["📊 Dashboard", "➕ Add Entry", "📈 View Report"])
 income_data, expense_data = load_data()
+st.write("Raw income data:", income_data)
+st.write("Raw expense data:", expense_data)
+
+
 
 # --- Dashboard ---
 if menu == "📊 Dashboard":
