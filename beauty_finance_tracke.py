@@ -57,8 +57,10 @@ elif tab == "➕ Add Entry":
     st.markdown("## ➕ Add New Entry")
 
     entry_type = st.radio("Select type", ["Income", "Expense"], horizontal=True)
+
     with st.form("entry_form"):
         date = st.date_input("Date", datetime.date.today())
+        
         if entry_type == "Income":
             client = st.text_input("Client Name")
             service = st.text_input("Service Type")
@@ -72,17 +74,13 @@ elif tab == "➕ Add Entry":
         submitted = st.form_submit_button("✅ Submit")
 
         if submitted:
-            row = [str(date), client if entry_type == "Income" else category, service if entry_type == "Income" else "", amount, notes]
             if entry_type == "Income":
+                row = [str(date), client, service, amount, notes]
                 income_sheet.append_row(row)
-                # Add to customer master if new
-if client_name not in existing_clients:
-    customer_code = f"CUST-{len(existing_clients)+1:04}"
-    customer_sheet.append_row([customer_code, client_name])
-    st.info(f"🆕 New customer '{client_name}' added to Customer Master as {customer_code}.")
-
             else:
+                row = [str(date), category, "", amount, notes]
                 expense_sheet.append_row(row)
+
             st.success(f"{entry_type} entry added successfully!")
 
 # 7️⃣ --- REPORT VIEW ---
