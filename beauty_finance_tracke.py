@@ -44,13 +44,6 @@ if tab == "📊 Dashboard":
     col2.metric("💸 Total Expenses", f"₹{total_expense:,.2f}")
     col3.metric("📈 Net Profit", f"₹{net_profit:,.2f}", delta=f"{net_profit - total_expense:,.2f}")
 
-    st.markdown("### 📅 Recent Entries")
-    st.write("#### Income")
-    st.dataframe(income_df.tail(5), use_container_width=True)
-
-    st.write("#### Expenses")
-    st.dataframe(expense_df.tail(5), use_container_width=True)
-
 # 6️⃣ --- ADD ENTRY ---
 elif tab == "➕ Add Entry":
     st.markdown("## ➕ Add New Entry")
