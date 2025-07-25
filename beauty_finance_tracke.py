@@ -22,10 +22,17 @@ income_sheet = sheet.worksheet("Income")
 expense_sheet = sheet.worksheet("Expenses")
 
 # --- Helper Functions ---
+
 def load_data():
-    income_data = income_sheet.get_all_values()[1:]  # skip header
-    expense_data = expense_sheet.get_all_values()[1:]
+    # Skip header, and keep only rows with exactly 4 columns for income, 3 for expense
+    raw_income = income_sheet.get_all_values()[1:]
+    raw_expense = expense_sheet.get_all_values()[1:]
+
+    income_data = [row for row in raw_income if len(row) == 4]
+    expense_data = [row for row in raw_expense if len(row) == 3]
+
     return income_data, expense_data
+
 
 def add_income(date, client, service, amount):
     income_sheet.append_row([str(date), client, service, str(amount)])
