@@ -30,7 +30,8 @@ st.title(" B-Keepers Finance ERP")
 st.markdown("Effortlessly track your income and expenses for your beauty business 💼")
 st.markdown("---")
 
-tab = st.selectbox("📍 Select a page", ["📊 Dashboard", "➕ Add Entry", "📁 View Report"])
+tab = st.selectbox("📍 Select a page", ["📊 Dashboard", "➕ Add Entry", "📁 View Report","🧾 Generate Invoice"])
+
 
 # 5️⃣ --- DASHBOARD ---
 if tab == "📊 Dashboard":
@@ -81,3 +82,41 @@ elif tab == "📁 View Report":
     st.markdown("### 💸 Expense Report")
     st.dataframe(expense_df, use_container_width=True)
     st.download_button("⬇️ Download Expense CSV", expense_df.to_csv(index=False), file_name="expense_report.csv")
+
+# 8️⃣ --- GENERATE INVOICE ---
+elif tab == "🧾 Generate Invoice":
+    st.markdown("## 🧾 Generate Invoice")
+
+    with st.form("invoice_form"):
+        invoice_date = st.date_input("Invoice Date", datetime.date.today())
+        client_name = st.text_input("Client Name")
+        service_type = st.text_input("Service Provided")
+        amount = st.number_input("Amount (₹)", min_value=0.0, step=100.0)
+        notes = st.text_area("Notes (Optional)")
+
+        submitted = st.form_submit_button("📤 Generate Invoice")
+
+        if submitted:
+            # Generate invoice number (you can improve this logic later)
+            invoice_id = f"INV-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+            # Create a basic invoice in Markdown
+            invoice_md = f"""
+            ### 🧾 Invoice: {invoice_id}
+            - **Date:** {invoice_date.strftime('%d-%m-%Y')}
+            - **Client:** {client_name}
+            - **Service:** {service_type}
+            - **Amount:** ₹{amount:,.2f}
+            - **Notes:** {notes or 'N/A'}
+
+            ---
+            **Thank you for your business!**
+            """
+
+            st.markdown(invoice_md)
+
+            # Optionally save to income sheet
+            row = [str(invoice_date), client_name, service_type, amount, notes]
+            income_sheet.append_row(row)
+            st.success("✅ Invoice generated and income recorded.")
+
