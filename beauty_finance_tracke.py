@@ -5,7 +5,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # 1️⃣ --- CONFIGS ---
-st.set_page_config(page_title="B-Keepers Finance Tracker", layout="wide")
+st.set_page_config(page_title="B-Keepers Finance ERP", layout="wide")
 
 # 2️⃣ --- AUTH ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -26,7 +26,7 @@ income_df["Amount"] = pd.to_numeric(income_df["Amount"], errors="coerce").fillna
 expense_df["Amount"] = pd.to_numeric(expense_df["Amount"], errors="coerce").fillna(0)
 
 # 4️⃣ --- PAGE NAVIGATION ---
-st.title("💄 Beauty Finance Tracker")
+st.title(" B-Keepers Finance ERP")
 st.markdown("Effortlessly track your income and expenses for your beauty business 💼")
 st.markdown("---")
 
