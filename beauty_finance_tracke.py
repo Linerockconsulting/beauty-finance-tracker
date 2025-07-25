@@ -176,7 +176,7 @@ if submitted:
            
 
             # Show invoice preview
-            
+            invoice_md = f"""
             ### 🧾 Invoice: {invoice_id}
             - **Date:** {invoice_date.strftime('%d-%m-%Y')}
             - **Client:** {client_name}
