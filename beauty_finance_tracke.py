@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import datetime
 import gspread
+import pdfkit
+import tempfile
+import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
 # 1️⃣ --- CONFIGS ---
@@ -118,7 +121,40 @@ elif tab == "🧾 Generate Invoice":
         if submitted:
             # Generate unique invoice number
             invoice_id = f"INV-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+            # Prepare invoice HTML
+    invoice_html = f"""
+    <html>
+    <head>
+    <style>
+    body {{ font-family: Arial, sans-serif; padding: 40px; }}
+    h2 {{ color: #4CAF50; }}
+    table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+    td {{ padding: 8px; }}
+    </style>
+    </head>
+    <body>
+        <h2>🧾 Invoice: {invoice_id}</h2>
+        <p><strong>Date:</strong> {invoice_date.strftime('%d-%m-%Y')}</p>
+        <p><strong>Client:</strong> {client_name}</p>
+        <p><strong>Service:</strong> {service_type}</p>
+        <p><strong>Amount:</strong> ₹{amount:,.2f}</p>
+        <p><strong>Notes:</strong> {notes or 'N/A'}</p>
+        <hr>
+        <p><em>Thank you for your business!</em></p>
+    </body>
+    </html>
+    """
 
+    # Generate PDF from HTML
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+        pdfkit.from_string(invoice_html, temp_pdf.name)
+        with open(temp_pdf.name, "rb") as pdf_file:
+            st.download_button(
+                label="📥 Download Invoice PDF",
+                data=pdf_file,
+                file_name=f"{invoice_id}.pdf",
+                mime="application/pdf"
+            )
             # Show invoice preview
             invoice_md = f"""
             ### 🧾 Invoice: {invoice_id}
