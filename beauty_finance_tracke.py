@@ -16,6 +16,13 @@ income_sheet = sheet.worksheet("Income")
 expense_sheet = sheet.worksheet("Expenses")
 
 # 3️⃣ --- FETCH DATA ---
+customer_sheet = sheet.worksheet("Customers")
+
+# Fetch customer data
+customer_data = customer_sheet.get_all_values()[1:]  # Skip header
+customer_df = pd.DataFrame(customer_data, columns=["Customer Code", "Client Name"])
+existing_clients = customer_df["Client Name"].tolist()
+
 income_data = income_sheet.get_all_values()[1:]  # Skip header
 expense_data = expense_sheet.get_all_values()[1:]  # Skip header
 
@@ -68,6 +75,12 @@ elif tab == "➕ Add Entry":
             row = [str(date), client if entry_type == "Income" else category, service if entry_type == "Income" else "", amount, notes]
             if entry_type == "Income":
                 income_sheet.append_row(row)
+                # Add to customer master if new
+if client_name not in existing_clients:
+    customer_code = f"CUST-{len(existing_clients)+1:04}"
+    customer_sheet.append_row([customer_code, client_name])
+    st.info(f"🆕 New customer '{client_name}' added to Customer Master as {customer_code}.")
+
             else:
                 expense_sheet.append_row(row)
             st.success(f"{entry_type} entry added successfully!")
@@ -89,7 +102,13 @@ elif tab == "🧾 Generate Invoice":
 
     with st.form("invoice_form"):
         invoice_date = st.date_input("Invoice Date", datetime.date.today())
-        client_name = st.text_input("Client Name")
+        client_name = st.text_input("Client Name", value="", placeholder="Start typing...")
+
+# Autocomplete logic: show suggestions
+suggestions = [c for c in existing_clients if client_name.lower() in c.lower()]
+if suggestions:
+    client_name = st.selectbox("Did you mean?", suggestions + [client_name], index=len(suggestions))
+
         service_type = st.text_input("Service Provided")
         amount = st.number_input("Amount (₹)", min_value=0.0, step=100.0)
         notes = st.text_area("Notes (Optional)")
